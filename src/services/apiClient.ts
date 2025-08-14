@@ -11,7 +11,12 @@ class ApiClient {
     this.baseURL = process.env.REACT_APP_API_URL || 'https://pm-orchestration-engine.vercel.app';
     this.apiKey = process.env.REACT_APP_API_KEY || 'poe_api_2025_e84b49245f7da5ba01bdd679d7e40d1e475ddafdf972788994b0e8dfc5b76302';
     
-    console.log('API Client Config:', { baseURL: this.baseURL, hasApiKey: !!this.apiKey });
+    console.log('API Client Config:', { 
+      baseURL: this.baseURL, 
+      hasApiKey: !!this.apiKey,
+      apiKeyPrefix: this.apiKey?.substring(0, 20) + '...',
+      environment: process.env.NODE_ENV
+    });
     
     this.client = axios.create({
       baseURL: this.baseURL,
@@ -58,7 +63,8 @@ class ApiClient {
         } else if (error.response?.status === 404) {
           throw new Error('API endpoint not found. Please check the API configuration.');
         } else if (error.response?.status === 401 || error.response?.status === 403) {
-          throw new Error('API authentication failed. Please check your API key.');
+          console.error('Authentication failed. Headers sent:', error.config?.headers);
+          throw new Error(`API authentication failed: ${error.response?.data?.error || 'Invalid credentials'}`);
         } else {
           throw new Error(error.response?.data?.error || error.message || 'Unknown API error');
         }
