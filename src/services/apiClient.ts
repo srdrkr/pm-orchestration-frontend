@@ -7,10 +7,8 @@ class ApiClient {
   private readonly apiKey: string;
 
   constructor() {
-    // Use local proxy in development to avoid CORS issues
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? (process.env.REACT_APP_API_URL || 'https://pm-orchestration-engine.vercel.app')
-      : ''; // Use relative URLs with proxy in development
+    // Always use production API URL for now to avoid CORS issues
+    this.baseURL = process.env.REACT_APP_API_URL || 'https://pm-orchestration-engine.vercel.app';
     this.apiKey = process.env.REACT_APP_API_KEY || 'poe_api_2025_e84b49245f7da5ba01bdd679d7e40d1e475ddafdf972788994b0e8dfc5b76302';
     
     console.log('API Client Config:', { baseURL: this.baseURL, hasApiKey: !!this.apiKey });
