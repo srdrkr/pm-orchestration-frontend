@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "devCommand": "npm start",
+  "installCommand": "npm install",
+  "env": {
+    "REACT_APP_API_URL": "https://pm-orchestration-engine.vercel.app",
+    "REACT_APP_API_KEY": "poe_api_2025_e84b49245f7da5ba01bdd679d7e40d1e475ddafdf972788994b0e8dfc5b76302"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
