@@ -81,10 +81,8 @@ class ApiClient {
   // Get all pending reviews
   async getReviews(): Promise<Review[]> {
     const response = await this.client.get('/api/reviews');
-    if (!response.data.success) {
-      throw new Error(response.data.error || 'Failed to fetch reviews');
-    }
-    return response.data.data || [];
+    // Backend returns {items: [], total: 0, ...} format, not {success: true, data: []}
+    return response.data.items || [];
   }
 
   // Get specific review by ID
