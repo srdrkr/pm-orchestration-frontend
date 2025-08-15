@@ -20,11 +20,22 @@ const TicketEditor: React.FC<TicketEditorProps> = ({ review, onBack, onSave }) =
   useEffect(() => {
     try {
       const content = review.edited_json || review.generated_json;
-      setEditedJson(content);
-      const parsed = JSON.parse(content);
-      setParsedContent(parsed);
+      
+      // Handle both object (from API) and string (from editing) formats
+      if (typeof content === 'string') {
+        setEditedJson(content);
+        const parsed = JSON.parse(content);
+        setParsedContent(parsed);
+      } else if (typeof content === 'object' && content !== null) {
+        // Content is already an object, stringify it for editing
+        const stringified = JSON.stringify(content, null, 2);
+        setEditedJson(stringified);
+        setParsedContent(content);
+      } else {
+        throw new Error('Invalid content format');
+      }
     } catch (err) {
-      setError('Invalid JSON content');
+      setError(`Invalid JSON content: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }, [review]);
 
