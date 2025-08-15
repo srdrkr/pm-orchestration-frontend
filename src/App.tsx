@@ -125,7 +125,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center text-sm text-gray-500">
             <div>
-              PM Orchestration Engine v1.0 - Meeting Notes → n8n AI Processing → React Review → Jira Creation
+              PM Orchestration Engine v1.0.1 - Meeting Notes → n8n AI Processing → React Review → Jira Creation
             </div>
             {healthStatus && (
               <div>
