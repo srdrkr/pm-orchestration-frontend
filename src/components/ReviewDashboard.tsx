@@ -63,10 +63,74 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
     return new Date(dateString).toLocaleString();
   };
 
-  const truncateContent = (content: string | null | undefined, maxLength: number = 150) => {
-    if (!content) return 'No content available';
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + '...';
+  const getContentPreview = (review: Review, maxLength: number = 150) => {
+    // Try to show generated content summary first
+    if (review.preview?.summary) {
+      const content = review.preview.summary;
+      return content.length <= maxLength ? content : content.substring(0, maxLength) + '...';
+    }
+    
+    // Try to extract initiative summary from generated content
+    try {
+      const generated = review.edited_json || review.generated_json;
+      let parsedContent;
+      
+      if (typeof generated === 'string') {
+        parsedContent = JSON.parse(generated);
+      } else if (typeof generated === 'object' && generated !== null) {
+        parsedContent = generated;
+      }
+      
+      if (parsedContent) {
+        // Handle both direct initiative format and data array format
+        const initiative = parsedContent.initiative || parsedContent.data?.[0]?.initiative;
+        if (initiative?.summary) {
+          const content = initiative.summary;
+          return content.length <= maxLength ? content : content.substring(0, maxLength) + '...';
+        }
+      }
+    } catch (err) {
+      // Fall through to input content
+    }
+    
+    // Fall back to input content
+    if (review.input_content) {
+      const content = review.input_content;
+      return content.length <= maxLength ? content : content.substring(0, maxLength) + '...';
+    }
+    
+    return 'No content available';
+  };
+
+  const getContentStats = (review: Review) => {
+    if (review.preview) {
+      return `${review.preview.initiative_count || 0} initiatives, ${review.preview.epic_count || 0} epics, ${review.preview.story_count || 0} stories`;
+    }
+    
+    try {
+      const generated = review.edited_json || review.generated_json;
+      let parsedContent;
+      
+      if (typeof generated === 'string') {
+        parsedContent = JSON.parse(generated);
+      } else if (typeof generated === 'object' && generated !== null) {
+        parsedContent = generated;
+      }
+      
+      if (parsedContent) {
+        const initiative = parsedContent.initiative || parsedContent.data?.[0]?.initiative;
+        if (initiative) {
+          const epicCount = initiative.epics?.length || 0;
+          const storyCount = initiative.epics?.reduce((total: number, epic: any) => 
+            total + (epic.stories?.length || 0), 0) || 0;
+          return `1 initiative, ${epicCount} epics, ${storyCount} stories`;
+        }
+      }
+    } catch (err) {
+      // Return empty string if parsing fails
+    }
+    
+    return '';
   };
 
   if (loading) {
@@ -119,12 +183,13 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
         <h2 className="text-2xl font-bold text-gray-900">Review Dashboard</h2>
         <button
           onClick={loadReviews}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center disabled:opacity-50"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Refresh
+          {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
 
@@ -151,9 +216,14 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
             </div>
 
             <div className="mb-3">
-              <p className="text-gray-700 text-sm">
-                {truncateContent(review.input_content)}
+              <p className="text-gray-700 text-sm font-medium mb-1">
+                {getContentPreview(review)}
               </p>
+              {getContentStats(review) && (
+                <p className="text-gray-500 text-xs">
+                  {getContentStats(review)}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-sm text-gray-500">

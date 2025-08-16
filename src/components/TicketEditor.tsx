@@ -98,13 +98,31 @@ const TicketEditor: React.FC<TicketEditorProps> = ({ review, onBack, onSave }) =
   };
 
   const renderInitiativeView = () => {
-    if (!parsedContent || !parsedContent.data || parsedContent.data.length === 0) {
+    if (!parsedContent) {
       return <div className="text-gray-500">No content to display</div>;
+    }
+
+    // Handle both formats: direct initiative and data array
+    const initiatives = [];
+    
+    if (parsedContent.initiative) {
+      // Direct initiative format
+      initiatives.push({
+        initiative: parsedContent.initiative,
+        stakeholderContext: parsedContent.stakeholderContext
+      });
+    } else if (parsedContent.data && Array.isArray(parsedContent.data)) {
+      // Legacy data array format
+      initiatives.push(...parsedContent.data);
+    }
+    
+    if (initiatives.length === 0) {
+      return <div className="text-gray-500">No initiatives found in content</div>;
     }
 
     return (
       <div className="space-y-6">
-        {parsedContent.data.map((item, index) => (
+        {initiatives.map((item, index) => (
           <div key={index} className="border border-gray-200 rounded-lg p-6">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
