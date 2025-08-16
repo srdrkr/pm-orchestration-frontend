@@ -26,7 +26,10 @@ const TicketEditor: React.FC<TicketEditorProps> = ({ review, onBack, onSave }) =
         type: typeof content,
         isNull: content === null,
         isUndefined: content === undefined,
-        reviewId: review.id
+        reviewId: review.id,
+        review_generated_json: review.generated_json,
+        review_edited_json: review.edited_json,
+        full_review: review
       });
       
       // Handle null/undefined content
