@@ -25,8 +25,16 @@ function App() {
     }
   };
 
-  const handleSelectReview = (review: Review) => {
-    setSelectedReview(review);
+  const handleSelectReview = async (review: Review) => {
+    try {
+      // Fetch full review details including generated_json
+      const fullReview = await apiClient.getReview(review.id);
+      setSelectedReview(fullReview);
+    } catch (error) {
+      console.error('Failed to fetch full review details:', error);
+      // Fallback to the preview data if fetch fails
+      setSelectedReview(review);
+    }
   };
 
   const handleBackToDashboard = () => {
