@@ -63,7 +63,8 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
     return new Date(dateString).toLocaleString();
   };
 
-  const truncateContent = (content: string, maxLength: number = 150) => {
+  const truncateContent = (content: string | null | undefined, maxLength: number = 150) => {
+    if (!content) return 'No content available';
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
   };
@@ -145,7 +146,7 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
                 </span>
               </div>
               <span className="text-sm text-gray-500">
-                {formatDate(review.created_at)}
+                {review.created_at ? formatDate(review.created_at) : 'Unknown date'}
               </span>
             </div>
 
@@ -156,8 +157,8 @@ const ReviewDashboard: React.FC<ReviewDashboardProps> = ({ onSelectReview }) => 
             </div>
 
             <div className="flex items-center justify-between text-sm text-gray-500">
-              <span>Type: {review.type}</span>
-              <span>ID: {review.id.slice(0, 8)}...</span>
+              <span>Type: {review.type || 'Unknown'}</span>
+              <span>ID: {review.id ? review.id.slice(0, 8) + '...' : 'No ID'}</span>
             </div>
           </div>
         ))}
