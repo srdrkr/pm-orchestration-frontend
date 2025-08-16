@@ -21,6 +21,22 @@ const TicketEditor: React.FC<TicketEditorProps> = ({ review, onBack, onSave }) =
     try {
       const content = review.edited_json || review.generated_json;
       
+      console.log('TicketEditor - Content debug:', {
+        content,
+        type: typeof content,
+        isNull: content === null,
+        isUndefined: content === undefined,
+        reviewId: review.id
+      });
+      
+      // Handle null/undefined content
+      if (!content) {
+        setError('No generated content available for this review');
+        setEditedJson('{}');
+        setParsedContent(null);
+        return;
+      }
+      
       // Handle both object (from API) and string (from editing) formats
       if (typeof content === 'string') {
         setEditedJson(content);
@@ -32,9 +48,13 @@ const TicketEditor: React.FC<TicketEditorProps> = ({ review, onBack, onSave }) =
         setEditedJson(stringified);
         setParsedContent(content);
       } else {
-        throw new Error('Invalid content format');
+        throw new Error(`Invalid content format: expected string or object, got ${typeof content}`);
       }
+      
+      // Clear any previous errors
+      setError(null);
     } catch (err) {
+      console.error('TicketEditor parsing error:', err);
       setError(`Invalid JSON content: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }, [review]);
